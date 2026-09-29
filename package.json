@@ -1,0 +1,16 @@
+{
+  "name": "task-flow-hng",
+  "version": "1.0.0",
+  "description": "Full-stack, secure, lightning-fast Todo application optimized for Netlify",
+  "main": "index.js",
+  "scripts": {
+    "start": "netlify dev",
+    "build": "mkdir -p dist && cp index.html index.css index.js dist/"
+  },
+  "dependencies": {
+    "@netlify/functions": "^2.6.0"
+  },
+  "devDependencies": {
+    "netlify-cli": "^17.34.0"
+  }
+}

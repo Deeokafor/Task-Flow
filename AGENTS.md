@@ -1,37 +1,58 @@
 # AGENTS.md
 
 ## Project Overview
-This repository contains a basic, lightweight Todo application (**Taskflow**) built with standard HTML, CSS, and Vanilla JavaScript.
-
-## Setup & Running the Application
-Since this application uses standard static web assets, no build step or node installation is required.
-
-### Local Execution Options:
-1. **Direct Browser Execution**:
-   - Open `index.html` directly in any web browser.
-2. **Local HTTP Server (Optional)**:
-   - Use Python's built-in HTTP server:
-     ```bash
-     python3 -m http.server 8000
-     ```
-     Then open `http://localhost:8000` in your web browser.
+This repository contains **Taskflow**, a full-stack, secure, lightning-fast Todo application built with Vanilla HTML, CSS, JavaScript, and Node.js serverless backend functions configured for Netlify deployment.
 
 ---
 
-## Testing & Verification Instructions
+## Setup & Local Development Options
 
-When making modifications or verifying the application, follow these guidelines:
+### Option 1: Full-Stack Netlify Local Server (Recommended)
+Run the application with Netlify serverless API functions enabled locally:
+```bash
+npx netlify-cli dev
+```
+This serves the frontend at `http://localhost:8888` and mounts serverless API endpoints at `http://localhost:8888/api/todos`.
 
-### 1. Manual Verification Checklist
-Verify the following functionalities in a browser or browser automation agent:
-- **Task Creation**: Add new todo items via the input field and verify they append to the list.
-- **Task Completion**: Toggle the checkbox on a task item. Ensure line-through formatting applies and the active task count decreases.
-- **Task Filtering**: Click the filter tabs (`All`, `Active`, `Completed`) and ensure only corresponding task items are visible.
-- **Task Deletion**: Click the delete icon on an item and verify it is removed from the DOM.
-- **Clear Completed**: Click "Clear Completed" and verify all finished tasks are removed simultaneously.
-- **Persistence**: Refresh the web page and ensure the task state persists via `localStorage`.
+### Option 2: Standalone Static Mode
+Open `index.html` directly in a browser or run Python's static HTTP server:
+```bash
+python3 -m http.server 8000
+```
+In static mode, the application gracefully adapts using an offline `localStorage` fallback adapter.
 
-### 2. Code Quality Guidelines
-- Do not introduce external heavy frameworks unless explicitly requested.
-- Maintain responsive, dark-mode glassmorphic styling inside `index.css`.
-- Keep core application logic decoupled in `index.js` and structure in `index.html`.
+---
+
+## Architecture & Security Verification
+
+### 1. Serverless API Functions
+- Endpoint: `/api/todos` (redirected to `netlify/functions/todos.js` via `netlify.toml`).
+- Supports `GET`, `POST`, `PATCH`, and `DELETE` HTTP methods.
+- Built-in in-memory rate limiting (max 60 requests/min per IP address).
+
+### 2. HTTP Security Headers
+Configured in `netlify.toml`:
+- `Content-Security-Policy`: Restricts inline scripts/styles to trusted origins (`'self'`).
+- `X-Frame-Options: DENY`: Prevents clickjacking attacks.
+- `X-Content-Type-Options: nosniff`: Prevents MIME-sniffing.
+- `Referrer-Policy: strict-origin-when-cross-origin`.
+
+---
+
+## Testing & Verification Checklist
+
+When modifying or verifying the application, execute these checks:
+
+### 1. Functionality Checklist
+- **Task Creation**: Add tasks with priority (`low`, `medium`, `high`), category (`General`, `Work`, `Personal`, `Dev`), and due date.
+- **Filtering & Search**:
+  - Filter by status (`All`, `Active`, `Completed`).
+  - Filter by category (`General`, `Work`, `Personal`, `Dev`).
+  - Search by task title.
+- **Task Completion & Updating**: Toggle completion checkbox; verify badge state and remaining task counter.
+- **Task Deletion & Clear Completed**: Delete individual items or batch clear all finished items.
+- **Data Export**: Click "Export JSON" in the footer and confirm JSON download.
+
+### 2. Security Checklist
+- Attempt submitting HTML/script tags (e.g. `<script>alert('xss')</script>`) in task title to confirm HTML escaping and sanitization.
+- Send rapid sequential requests to `/api/todos` to verify HTTP `429 Too Many Requests` rate limiting response.
